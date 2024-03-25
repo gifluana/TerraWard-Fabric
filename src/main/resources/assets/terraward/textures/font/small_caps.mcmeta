@@ -1,0 +1,15 @@
+{
+  "texture": {
+    "width": 128,
+    "height": 128,
+    "ascent": 7,
+    "chars": [
+      " !\"#$%&'()*+,-./",
+      "0123456789:;<=>?",
+      "@ABCDEFGHIJKLMNO",
+      "PQRSTUVWXYZ[\\]^_",
+      "`abcdefghijklmno",
+      "pqrstuvwxyz{|}~ "
+    ]
+  }
+}
