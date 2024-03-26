@@ -10,7 +10,6 @@ import com.lunazstudios.terraward.util.jsonutil.WorldKeyDeserializer;
 import com.lunazstudios.terraward.util.jsonutil.WorldKeySerializer;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -23,7 +22,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ModConfig {
-    private static ModConfig instance;
+
+    /**
+     * The Gson instance used to serialize and deserialize the config.
+     * This Gson instance is configured to handle Vec3d and RegistryKey objects.
+     * It is also configured to pretty print the JSON output.
+     */
     private static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(Vec3d.class, new Vec3dSerializer())
             .registerTypeAdapter(Vec3d.class, new Vec3dDeserializer())
@@ -32,30 +36,32 @@ public class ModConfig {
             .setPrettyPrinting()
             .create();
 
-    private static final Path configPath = Path.of("config/terraward.json");
-    private Map<String, ProtectedArea> areas = new HashMap<>();
+    private final Path configPath;
+    private Map<String, ProtectedArea> areas;
 
-    private ModConfig() {
-
+    /**
+     * Create a new ModConfig instance.
+     */
+    public ModConfig(Path configPath) {
+        this.configPath = configPath;
+        this.areas = new HashMap<>();
+        load();
     }
 
-    public static ModConfig getInstance() {
-        if (instance == null) {
-            instance = new ModConfig();
-            instance.load();
-        }
-        return instance;
-    }
-
+    /**
+     * Load the config from the file at the configPath.
+     */
     private void load() {
         try {
             if (!Files.exists(configPath)) {
                 save();
             } else {
                 try (FileReader reader = new FileReader(configPath.toFile())) {
-                    Type configType = new TypeToken<ModConfig>() {}.getType();
-                    ModConfig config = gson.fromJson(reader, configType);
-                    this.areas = config.areas;
+                    Type configType = new TypeToken<Map<String, ProtectedArea>>() {}.getType();
+                    this.areas = gson.fromJson(reader, configType);
+                    if (this.areas == null) {
+                        this.areas = new HashMap<>();
+                    }
                 }
             }
         } catch (IOException e) {
@@ -63,14 +69,21 @@ public class ModConfig {
         }
     }
 
+    /**
+     * Save the config to the file at the configPath.
+     */
     public void save() {
         try (FileWriter writer = new FileWriter(configPath.toFile())) {
-            gson.toJson(this, writer);
+            gson.toJson(this.areas, writer);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Add a new area to the config.
+     * If an area with the same name already exists, it is not added.
+     */
     public void addArea(ProtectedArea area) {
         if (areas.containsKey(area.getName())) {
             return;
@@ -79,23 +92,46 @@ public class ModConfig {
         save();
     }
 
-    public void removeArea(String name) {
+    /**
+     * Remove an area from the config.
+     * If an area with the given name does not exist, nothing happens.
+     * @param name The name of the area to remove.
+     *             The name is case-sensitive.
+     *             The name is the unique identifier of the area.
+     */
+    public boolean removeArea(String name) {
         if (!areas.containsKey(name)) {
-
-            return;
+            return false;
         }
         areas.remove(name);
         save();
+        return true;
     }
 
+    /**
+     * Get an area from the config by name.
+     * If an area with the given name does not exist, null is returned.
+     * @param name The name of the area to get.
+     *             The name is case-sensitive.
+     *             The name is the unique identifier of the area.
+     */
     public ProtectedArea getArea(String name) {
         return areas.get(name);
     }
 
+    /**
+     * Get all areas in the config.
+     * The areas are returned as a collection.
+     */
     public Collection<ProtectedArea> getAllAreas() {
         return areas.values();
     }
 
+    /**
+     * Find the highest priority area that contains the given location.
+     * If no area contains the location, null is returned.
+     * @param x The x-coordinate of the location.
+     */
     public ProtectedArea findAreaByLocation(int x, int y, int z) {
         ProtectedArea highestPriorityArea = null;
 

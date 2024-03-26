@@ -3,7 +3,9 @@
 	"package": "com.lunazstudios.terraward.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-
+		"MixinNoHunger",
+		"MixinOnDamage",
+		"MixinOnDeath"
 	],
 	"injectors": {
 		"defaultRequire": 1

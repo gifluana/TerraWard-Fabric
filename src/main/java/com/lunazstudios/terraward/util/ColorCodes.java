@@ -2,6 +2,9 @@ package com.lunazstudios.terraward.util;
 
 import net.minecraft.util.Formatting;
 
+/**
+ * Colored text conversion table.
+ */
 public enum ColorCodes {
     BLACK('0', Formatting.BLACK),
     DARK_BLUE('1', Formatting.DARK_BLUE),

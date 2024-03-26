@@ -10,6 +10,9 @@ import net.minecraft.world.World;
 
 import java.lang.reflect.Type;
 
+/**
+ * Helper method serialize RegistryKey<World> to json.
+ */
 public class WorldKeySerializer implements JsonSerializer<RegistryKey<World>> {
     @Override
     public JsonElement serialize(RegistryKey<World> src, Type typeOfSrc, JsonSerializationContext context) {

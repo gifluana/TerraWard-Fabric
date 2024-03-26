@@ -7,6 +7,9 @@ import net.minecraft.world.World;
 
 import java.lang.reflect.Type;
 
+/**
+ * Helper method deserialize RegistryKey<World> from json.
+ */
 public class WorldKeyDeserializer implements JsonDeserializer<RegistryKey<World>> {
     @Override
     public RegistryKey<World> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
